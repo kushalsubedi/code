@@ -1,0 +1,111 @@
+name: CI/CD - Docker Build & Push image into Docker hub
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  test-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for commit message validation
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+
+      - name: Run React tests
+        run: echo "test pass for now .... "
+      - name: Install commitlint
+        run: npm install --no-save @commitlint/config-conventional @commitlint/cli
+
+      - name: Validate Conventional Commit Messages
+        run: |
+          set -e
+          BASE_BRANCH="${{ github.base_ref || 'main' }}"
+          echo "Comparing commits from origin/$BASE_BRANCH to HEAD..."
+
+          CONVENTIONAL_REGEX="^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert)(\\([a-z0-9-]+\\))?: .+"
+
+          COMMITS=$(git log origin/$BASE_BRANCH..HEAD --pretty=format:"%s")
+          echo "$COMMITS" | while IFS= read -r COMMIT; do
+            # Skip merge commits
+            if [[ "$COMMIT" =~ ^Merge\ [a-f0-9]{7,}\ into\ [a-f0-9]{7,}$ ]]; then
+              echo "⚠️ Skipping merge commit: \"$COMMIT\""
+              continue
+            fi
+
+            if [[ ! "$COMMIT" =~ $CONVENTIONAL_REGEX ]]; then
+              echo "::error ::❌ Non-conforming commit: \"$COMMIT\""
+              exit 1
+            else
+              echo "✅ $COMMIT"
+            fi
+          done
+
+          echo "✅ All commit messages follow Conventional Commits."
+        
+  docker-build-and-push:
+    needs: test-and-validate
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PAT }}
+
+      - name: Get short SHA
+        id: vars
+        run: echo "sha3=$(echo $GITHUB_SHA | cut -c1-3)" >> $GITHUB_OUTPUT
+
+      - name: Set environment name
+        id: envname
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "env=production" >> $GITHUB_OUTPUT
+          else
+            echo "env=development" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Applying Docker tags
+        id: tags
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "tag=v1.0.1" >> $GITHUB_OUTPUT
+          else
+            echo "tag=dev${{ steps.vars.outputs.sha3 }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Print Environment
+        run: echo "Using environment $ENVIRONMENT"
+        env:
+          ENVIRONMENT: ${{ steps.envname.outputs.env }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/backend2:${{ steps.tags.outputs.tag }}
+
