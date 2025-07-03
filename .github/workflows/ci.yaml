@@ -1,0 +1,30 @@
+name: CI and CD for Frontend Code
+
+on:
+  pull_request:
+    paths:
+      - 'frontend/**'
+    branches:
+      - dev
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # Checkout your code
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Check Conventional Commits
+      - name: Validate commit message
+        run: .github/scripts/check_commit.sh
+      # Install dependencies and cache it
+      - name: Install dependencies
+        uses: actions/setup-node@v4
+        with:
+          node_version: 18
+          cache: 'yarn'
+          cache-dependency-path: package-lock.json
