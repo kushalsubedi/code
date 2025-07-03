@@ -48,7 +48,6 @@ jobs:
           node_version: 18
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
-
       - name: Semantic release
         env:
           GITHUB_TOKEN: ${{secrets.GH_TOKEN}}
