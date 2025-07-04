@@ -50,7 +50,7 @@ jobs:
           cache-dependency-path: frontend/yarn.lock
       - name: Semantic release
         env:
-          GITHUB_TOKEN: ${{secrets.GH_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GH_PAT}}
         run: npx semantic-release --branches dev
 
       - name: Create version Tag
