@@ -1,6 +1,9 @@
 name: CI and CD for Frontend Code
 
 on:
+  push:
+    branches:
+      - dev
   pull_request:
     paths:
       - 'frontend/**'
