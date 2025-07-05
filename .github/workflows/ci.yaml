@@ -31,10 +31,6 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
 
-      - name: Install dependencies
-        run: |
-          cd frontend
-          yarn install
 
 # Release step
   create_semantic_version:
@@ -54,11 +50,6 @@ jobs:
           node-version: 18
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
-
-      - name: Install dependencies
-        run: |
-          cd frontend
-          yarn install
 
       - name: Semantic release
         env:
