@@ -66,9 +66,9 @@ jobs:
           fi
 
           NEW_BRANCH="v/${VERSION#v}"
+          git config user.name 'action-user[bot]'
+          git config user.email 'action-user[bot]@github.com'
 
-          git config user.name="action-user[bot]"
-          git config user.email="action-user[bot]@github.com"
           git checkout -b "$NEW_BRANCH"
           git push origin "$NEW_BRANCH"
 
