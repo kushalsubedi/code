@@ -114,3 +114,28 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
 
+  #Trivy scan report
+      - name: Install trivy in ubuntu
+        run: |
+          sudo apt-get update
+          sudo apt-get install wget -y
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.51.1_Linux-64bit.deb
+          sudo dpkg -i trivy_0.51.1_Linux-64bit.deb
+
+      - name: Run Trivy and generate HTML report
+        run: |
+          mkdir -p scan-report
+          trivy image --format template --template "@/contrib/html.tpl" \
+            -o scan-report/scan.html \
+            ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
+
+      - name: Push report to kushalsubedi.github.io repo
+        run: |
+          git config --global user.email "ci-bot@github.com"
+          git config --global user.name "CI Bot"
+          git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/kushalsubedi/kushalsubedi.github.io.git
+          cp scan-report/scan.html kushalsubedi.github.io/
+          cd kushalsubedi.github.io
+          git add scan.html
+          git commit -m "chore(report): update trivy scan report for version ${{ steps.version.outputs.version }}"
+          git push origin main
