@@ -1,28 +1,16 @@
 {
-  "branches": [
-    { "name": "dev", "prerelease": true },
-    { "name": "main" }
-  ],
+  "branches": ["main", "dev"],
   "tagFormat": "v${version}",
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
-    "@semantic-release/changelog",
     [
       "@semantic-release/npm",
       {
         "npmPublish": false,
-        "pkgRoot": "frontend"
+        "pkgRoot": "./frontend"
       }
     ],
-    [
-      "@semantic-release/github",
-      {
-        "assets": [
-          { "path": "frontend/dist", "label": "Build output" }
-        ]
-      }
-    ]
+    "@semantic-release/github"
   ]
 }
-
