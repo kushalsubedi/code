@@ -6,18 +6,9 @@ WORKDIR /app
 COPY package*.json ./
 COPY yarn.lock ./
 
-RUN yarn install --production --ignore-engines
-
-
-# -------- Stage 2: Dist build, create dist folder --------
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-COPY --from=base /app/node_modules ./node_modules
+RUN yarn
 
 COPY . .
-
 RUN yarn build
 
 
@@ -27,7 +18,7 @@ FROM nginx:stable-alpine3.21-perl AS production
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=base /app/dist /usr/share/nginx/html
 EXPOSE 80
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
 
