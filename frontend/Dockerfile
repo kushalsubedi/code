@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY yarn.lock ./
 
-RUN yarn install --frozen-lockfile
+RUN yarn install --production
 
 
 # -------- Stage 2: Dist build, create dist folder --------
