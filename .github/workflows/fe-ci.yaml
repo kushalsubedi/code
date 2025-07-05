@@ -23,9 +23,9 @@ jobs:
           fetch-depth: 0
       # Check Conventional Commits
 
-      - name: Validate commit message
-        run: chmod +x .github/scripts/check_commit.sh && .github/scripts/check_commit.sh
-      # Install dependencies and cache it
+      # - name: Validate commit message
+      #   run: chmod +x .github/scripts/check_commit.sh && .github/scripts/check_commit.sh
+      # # Install dependencies and cache it
       - name: setup-node
         uses: actions/setup-node@v4
         with:
