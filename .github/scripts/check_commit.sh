@@ -8,8 +8,9 @@ echo "Commit: \"$COMMIT_MSG\""
 # Conventional commit pattern
 # search for commits that starts with  following prefix and commit messages
 #REGEX="^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|breaking)(\\([a-z0-9-_]+\\))?(!)?: .+"
+REGEX='^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|breaking)(\([a-z0-9-_]+\))?(!)?: .+|^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|breaking)!: .+'
 
-REGEX='^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|breaking)(\([a-z0-9-_]+\))?(!)?: .+'
+#REGEX='^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|breaking)(\([a-z0-9-_]+\))?(!)?: .+'
 # Ignore merge commits
 if [[ "$COMMIT_MSG" =~ ^Merge\ [a-f0-9]{7,}\ into\ [a-f0-9]{7,}$ ]]; then
   echo "Skipping merge commit."
