@@ -1,5 +1,5 @@
 # -------- Stage 1: Base build, only deps --------
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 WORKDIR /app
 
@@ -10,12 +10,11 @@ RUN yarn install --production --ignore-engines
 
 
 # -------- Stage 2: Dist build, create dist folder --------
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
 COPY --from=base /app/node_modules ./node_modules
-RUN yarn add vite
 
 COPY . .
 
