@@ -32,15 +32,15 @@ jobs:
           node-version: 18
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
-      # - name: Install Commitlint
-      #   run: |
-      #     npm install --save-dev @commitlint/cli @commitlint/config-conventional
-      # - name: Add commitlint config
-      #   run: |
-      #     echo "module.exports = {extends: ['@commitlint/config-conventional']};" > commitlint.config.js
-      # - name: Run Commitlint
-      #   run: |
-      #     git log origin/${{ github.base_ref }}..HEAD --pretty=format:"%s" | npx commitlint
+      - name: Install Commitlint
+        run: |
+          npm install --save-dev @commitlint/cli @commitlint/config-conventional
+      - name: Add commitlint config
+        run: |
+          echo "module.exports = {extends: ['@commitlint/config-conventional']};" > commitlint.config.js
+      - name: Run Commitlint
+        run: |
+          git log origin/${{ github.base_ref }}..HEAD --pretty=format:"%s" | npx commitlint
 # Release step
   create_semantic_version:
     needs: test
