@@ -35,12 +35,23 @@ jobs:
       - name: Install Commitlint
         run: |
           npm install --save-dev @commitlint/cli @commitlint/config-conventional
-      - name: Add commitlint config
+
+      - name: Get commit base
+        id: base
         run: |
-          echo "module.exports = {extends: ['@commitlint/config-conventional']};" > commitlint.config.js
-      - name: Run Commitlint
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "ref=${{ github.base_ref }}" >> $GITHUB_OUTPUT
+          else
+            echo "ref=origin/HEAD" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Fetch base
+        run: git fetch origin ${{ steps.base.outputs.ref }}
+
+      - name: Lint commits with commitlint
         run: |
-          git log origin/${{ github.base_ref }}..HEAD --pretty=format:"%s" | npx commitlint
+          git log ${{ steps.base.outputs.ref }}..HEAD --pretty=format:"%s" | npx commitlint
+
 # Release step
   create_semantic_version:
     needs: test
