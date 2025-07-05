@@ -51,7 +51,8 @@ jobs:
       - name: Semantic release
         env:
           GITHUB_TOKEN: ${{secrets.GH_PAT}}
-        run: npx semantic-release --exrends ./frontend/.releaserc
+        run: npx semantic-release
+
 
 
   build_and_push_docker_image:
