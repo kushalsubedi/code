@@ -6,7 +6,10 @@ const isMain = branch === 'main';
 
 module.exports = {
   branches: [
-    {name: 'dev'},
+    {
+      name: 'dev',
+      prerelease: true // allows any prerelease version on dev, no range limits
+    },
     {
       name: 'main',
       channel: 'latest',
