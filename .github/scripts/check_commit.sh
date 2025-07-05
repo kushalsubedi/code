@@ -8,7 +8,8 @@ COMMIT_MSG=$(git log -1 --pretty=format:"%s" | tr -d '\r' | sed 's/^[ \t]*//;s/[
 echo "Commit: \"$COMMIT_MSG\""
 
 # Conventional commit pattern
-REGEX='^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|breaking)(\([a-z0-9-_]+\))?(!)?: .+|^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|breaking)!: .+'
+#REGEX='^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|breaking)(\([a-z0-9-_]+\))?(!)?: .+|^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|breaking)!: .+'
+REGEX='^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|breaking)(!|\([a-z0-9-_]+\)|\([a-z0-9-_]+\)!){0,1}: .+'
 
 # Ignore merge commits
 if [[ "$COMMIT_MSG" =~ ^Merge\ [a-f0-9]{7,}\ into\ [a-f0-9]{7,}$ ]]; then
