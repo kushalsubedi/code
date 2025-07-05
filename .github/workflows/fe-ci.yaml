@@ -36,18 +36,20 @@ jobs:
         run: |
           npm install --save-dev @commitlint/cli @commitlint/config-conventional
 
-      - name: Get commit base
+
+      - name: Fetch all branches
+        run: git fetch origin
+
+      - name: Determine base ref
         id: base
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "ref=origin/${{ github.base_ref }}" >> $GITHUB_OUTPUT
           else
-            echo "ref=origin/dev" >> $GITHUB_OUTPUT  # or origin/main
+            echo "ref=origin/dev" >> $GITHUB_OUTPUT
           fi
-      - name: Fetch base
-        run: git fetch origin ${{ steps.base.outputs.ref }}
 
-      - name: Lint commits with commitlint
+      - name: Run Commitlint
         run: |
           git log ${{ steps.base.outputs.ref }}..HEAD --pretty=format:"%s" | npx commitlint
 
