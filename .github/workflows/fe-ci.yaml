@@ -40,11 +40,10 @@ jobs:
         id: base
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "ref=${{ github.base_ref }}" >> $GITHUB_OUTPUT
+            echo "ref=origin/${{ github.base_ref }}" >> $GITHUB_OUTPUT
           else
-            echo "ref=origin/HEAD" >> $GITHUB_OUTPUT
+            echo "ref=origin/dev" >> $GITHUB_OUTPUT  # or origin/main
           fi
-
       - name: Fetch base
         run: git fetch origin ${{ steps.base.outputs.ref }}
 
