@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY yarn.lock ./
 
-RUN yarn install --frozen-lockfile
+RUN yarn install --production --ignore-engines
 
 
 # -------- Stage 2: Dist build, create dist folder --------
@@ -15,6 +15,8 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 COPY --from=base /app/node_modules ./node_modules
+RUN yarn add vite
+
 COPY . .
 
 RUN yarn build
