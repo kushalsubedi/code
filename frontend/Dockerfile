@@ -1,12 +1,12 @@
 # -------- Stage 1: Base build, only deps --------
-FROM node:20-alpine AS base
+FROM node:18-alpine AS base
 
 WORKDIR /app
 
 COPY package*.json ./
 COPY yarn.lock ./
 
-RUN yarn install
+RUN yarn install --production
 
 
 # -------- Stage 2: Dist build, create dist folder --------
@@ -15,6 +15,8 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 COPY --from=base /app/node_modules ./node_modules
+RUN yarn add vite
+
 COPY . .
 
 RUN yarn build
