@@ -1,5 +1,8 @@
 {
-  "branches": ["main", "dev"],
+  "branches": [
+    { "name": "main" },
+    { "name": "dev", "prerelease": true }
+  ],
   "tagFormat": "v${version}",
   "plugins": [
     "@semantic-release/commit-analyzer",
@@ -12,8 +15,14 @@
         "pkgRoot": "frontend"
       }
     ],
-    "@semantic-release/github"
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          { "path": "frontend/dist", "label": "Build output" }
+        ]
+      }
+    ]
   ]
 }
-
 
