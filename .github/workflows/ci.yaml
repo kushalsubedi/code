@@ -57,20 +57,20 @@ jobs:
         run: npx semantic-release
 
 
-      - name: Create version Tag
-        run: |
-          if git describe --tags --abbrev=0 >/dev/null 2>&1; then
-            VERSION=$(git describe --tags --abbrev=0)
-          else
-            VERSION="0.0.0"
-          fi
-
-          NEW_BRANCH="v/${VERSION#v}"
-          git config user.name 'action-user[bot]'
-          git config user.email 'action-user[bot]@github.com'
-
-          git checkout -b "$NEW_BRANCH"
-          git push origin "$NEW_BRANCH"
+      # - name: Create version Tag
+      #   run: |
+      #     if git describe --tags --abbrev=0 >/dev/null 2>&1; then
+      #       VERSION=$(git describe --tags --abbrev=0)
+      #     else
+      #       VERSION="0.0.0"
+      #     fi
+      #
+      #     NEW_BRANCH="${VERSION#v}"
+      #     git config user.name 'action-user[bot]'
+      #     git config user.email 'action-user[bot]@github.com'
+      #
+      #     git checkout -b "$NEW_BRANCH"
+      #     git push origin "$NEW_BRANCH"
 
 
 
