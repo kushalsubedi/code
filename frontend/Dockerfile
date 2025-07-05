@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY yarn.lock ./
 
-RUN yarn install --production --ignore-engines
+RUN yarn install
 
 
 # -------- Stage 2: Dist build, create dist folder --------
