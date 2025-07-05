@@ -8,7 +8,7 @@
       "@semantic-release/npm",
       {
         "npmPublish": false,
-        "pkgRoot": "./frontend"
+        "pkgRoot": "frontend"
       }
     ],
     "@semantic-release/github"
