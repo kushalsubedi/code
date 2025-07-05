@@ -1,13 +1,15 @@
 const path = require('path');
 
-/** Detect current branch from env */
 const branch = process.env.GITHUB_REF?.replace('refs/heads/', '') || process.env.CI_COMMIT_REF_NAME;
 
 const isMain = branch === 'main';
 
 module.exports = {
   branches: [
-    'dev',
+    {
+      name: 'dev',
+      prerelease: true // allows any prerelease version on dev, no range limits
+    },
     {
       name: 'main',
       channel: 'latest',
