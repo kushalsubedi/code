@@ -22,8 +22,17 @@ jobs:
         with:
           fetch-depth: 0
       # Check Conventional Commits
-      - name: Validate commit message
-        run: chmod +x .github/scripts/check_commit.sh && .github/scripts/check_commit.sh
+      - name: Install Commitlint
+        run: |
+          npm install --save-dev @commitlint/cli @commitlint/config-conventional
+      - name: Add commitlint config
+        run: |
+          echo "module.exports = {extends: ['@commitlint/config-conventional']};" > commitlint.config.js
+      - name: Run Commitlint
+        run: |
+          git log origin/${{ github.base_ref }}..HEAD --pretty=format:"%s" | npx commitlint
+      # - name: Validate commit message
+      #   run: chmod +x .github/scripts/check_commit.sh && .github/scripts/check_commit.sh
       # Install dependencies and cache it
       - name: setup-node
         uses: actions/setup-node@v4
