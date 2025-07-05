@@ -54,7 +54,8 @@ jobs:
       - name: Semantic release
         env:
           GITHUB_TOKEN: ${{secrets.GH_PAT}}
-        run: npx semantic-release --branches dev
+        run: npx semantic-release
+
 
       - name: Create version Tag
         run: |
