@@ -104,6 +104,8 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
             ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
 
       - name: Build and push Docker image on dev branch (version only)
         if: github.ref == 'refs/heads/dev'
@@ -113,8 +115,19 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Move updated Docker cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   #Trivy scan report
+      - name: Create scan-report directory
+        run: mkdir -p scan-report
+
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
         with:
