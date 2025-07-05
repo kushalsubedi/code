@@ -11,7 +11,6 @@ module.exports = {
     {
       name: 'main',
       channel: 'latest',
-      range: '*'
     }
   ],
   tagFormat: 'v${version}',
