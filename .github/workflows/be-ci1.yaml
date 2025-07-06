@@ -1,4 +1,4 @@
-name: CI and CD for Frontend Code
+name: CI and CD for Backend Code
 on:
   push:
     paths:

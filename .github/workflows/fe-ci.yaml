@@ -1,6 +1,8 @@
 name: CI and CD for Frontend Code
 on:
   push:
+    paths:
+      - 'frontend/**'
     branches:
       - dev
       - main
@@ -34,123 +36,147 @@ jobs:
           cache-dependency-path: frontend/yarn.lock
 
 
-# Release step
-  create_semantic_version:
-    needs: test
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Build frontend dist
+        working-directory: frontend
+        run: yarn build
 
-      - name: setup-node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: 'yarn'
-          cache-dependency-path: frontend/yarn.lock
-
-      - name: Semantic release
-        env:
-          GITHUB_TOKEN: ${{secrets.GH_PAT}}
-        run: npx semantic-release
-
-  build_and_push_docker_image:
-    needs: create_semantic_version
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Log in to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_PAT }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Get latest version from tag
-        id: version
-        run: |
-          VERSION=$(git describe --tags --abbrev=0)
-          VERSION_NUMBER=${VERSION#v}
-          echo "version=$VERSION_NUMBER" >> "$GITHUB_OUTPUT"
-
-      - name: List frontend files
-        run: ls -R ./frontend
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
-
-      - name: Build and push Docker image on main branch (version + latest)
-        if: github.ref == 'refs/heads/main'
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
-            ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
-
-      - name: Build and push Docker image on dev branch (version only)
-        if: github.ref == 'refs/heads/dev'
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
-
-      - name: Move updated Docker cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
-  #Trivy scan report
-      - name: Create scan-report directory
-        run: mkdir -p scan-report
-
-      - name: get trivy tempelete
-        run: |
-          mkdir -p .trivy-template
-          curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o .trivy-template/html.tpl
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
-          format: 'template'
-          template: ".trivy-template/html.tpl"
-          output: 'scan-report/scan.html'
-      - name: Check output
-        run: |
-          ls -lh scan-report/scan.html
-          cat scan-report/scan.html | head -n 20
-
-      - name: Push report to kushalsubedi.github.io repo
+      - name: Deploy build to /fe on kushalsubedi.github.io
         run: |
           git config --global user.email "ci-bot@github.com"
           git config --global user.name "CI Bot"
+
           git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/kushalsubedi/kushalsubedi.github.io.git
-          cp scan-report/scan.html kushalsubedi.github.io/
+
+          mkdir -p kushalsubedi.github.io/fe
+          rm -rf kushalsubedi.github.io/fe/*
+
+          cp -r frontend/dist/* kushalsubedi.github.io/fe/
+
           cd kushalsubedi.github.io
-          git add scan.html
-          git commit -m "chore(report): update trivy scan report for version ${{ steps.version.outputs.version }}"
+          git add .
+          git commit -m "chore(deploy): update frontend build at /fe from ${{ github.sha }}"
           git push origin main
+
+
+# Release step
+  # create_semantic_version:
+  #   needs: test
+    # if: github.event_name == 'push'
+    # runs-on: ubuntu-latest
+    # steps:
+    #   - name: checkout code
+    #     uses: actions/checkout@v4
+    #     with:
+    #       fetch-depth: 0
+    #
+    #   - name: setup-node
+    #     uses: actions/setup-node@v4
+    #     with:
+    #       node-version: 18
+    #       cache: 'yarn'
+    #       cache-dependency-path: frontend/yarn.lock
+    #
+    #   - name: Semantic release
+    #     env:
+    #       GITHUB_TOKEN: ${{secrets.GH_PAT}}
+    #     run: npx semantic-release
+
+  # build_and_push_docker_image:
+  #   needs: create_semantic_version
+  #   if: github.event_name == 'push'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+  #
+  #     - name: Log in to DockerHub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKER_HUB_USERNAME }}
+  #         password: ${{ secrets.DOCKER_HUB_PAT }}
+  #
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v3
+  #
+  #     - name: Get latest version from tag
+  #       id: version
+  #       run: |
+  #         VERSION=$(git describe --tags --abbrev=0)
+  #         VERSION_NUMBER=${VERSION#v}
+  #         echo "version=$VERSION_NUMBER" >> "$GITHUB_OUTPUT"
+
+
+
+      # - name: List frontend files
+      #   run: ls -R ./frontend
+      #
+      # - name: Build and push Docker image
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: ./frontend
+      #     file: ./frontend/Dockerfile
+      #     push: true
+      #     tags: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
+      #
+      # - name: Build and push Docker image on main branch (version + latest)
+      #   if: github.ref == 'refs/heads/main'
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: ./frontend
+      #     file: ./frontend/Dockerfile
+      #     push: true
+      #     tags: |
+      #       ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
+      #       ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:latest
+      #     cache-from: type=local,src=/tmp/.buildx-cache
+      #     cache-to: type=local,dest=/tmp/.buildx-cache-new
+      #
+      # - name: Build and push Docker image on dev branch (version only)
+      #   if: github.ref == 'refs/heads/dev'
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: ./frontend
+      #     file: ./frontend/Dockerfile
+      #     push: true
+      #     tags: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
+      #     cache-from: type=local,src=/tmp/.buildx-cache
+      #     cache-to: type=local,dest=/tmp/.buildx-cache-new
+      #
+      # - name: Move updated Docker cache
+      #   run: |
+      #     rm -rf /tmp/.buildx-cache
+      #     mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  # #Trivy scan report
+  #     - name: Create scan-report directory
+  #       run: mkdir -p scan-report
+  #
+  #     - name: get trivy tempelete
+  #       run: |
+  #         mkdir -p .trivy-template
+  #         curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o .trivy-template/html.tpl
+  #
+  #     - name: Run Trivy vulnerability scanner
+  #       uses: aquasecurity/trivy-action@0.28.0
+  #       with:
+  #         image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
+  #         format: 'template'
+  #         template: ".trivy-template/html.tpl"
+  #         output: 'scan-report/scan.html'
+  #     - name: Check output
+  #       run: |
+  #         ls -lh scan-report/scan.html
+  #         cat scan-report/scan.html | head -n 20
+  #
+  #     - name: Push report to kushalsubedi.github.io repo
+  #       run: |
+  #         git config --global user.email "ci-bot@github.com"
+  #         git config --global user.name "CI Bot"
+  #         git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/kushalsubedi/kushalsubedi.github.io.git
+  #         cp scan-report/scan.html kushalsubedi.github.io/
+  #         cd kushalsubedi.github.io
+  #         git add scan.html
+  #         git commit -m "chore(report): update trivy scan report for version ${{ steps.version.outputs.version }}"
+  #         git push origin main
