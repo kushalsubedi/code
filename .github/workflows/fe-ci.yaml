@@ -82,7 +82,7 @@ jobs:
             git push origin main
           fi
         shell: bash
-
+#Create Sem release
   create_semantic_version:
     needs: test_and_gh_page_deployment
     if: github.event_name == 'push'
@@ -104,7 +104,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GH_PAT}}
         run: npx semantic-release
-
+# Build Docker
   build_and_push_docker_image:
     needs: create_semantic_version
     if: github.event_name == 'push'
@@ -171,7 +171,18 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-  #Trivy scan report
+      - name: Save Docker image to tar file
+        run: |
+          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
+          docker save ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }} -o frontend-app-v${{ steps.version.outputs.version }}.tar
+
+      - name: Upload image to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          gh release upload "v${{ steps.version.outputs.version }}" frontend-app-v${{ steps.version.outputs.version }}.tar --repo ${{ github.repository }} --clobber
+
+    #Trivy scan report
 
       - name: Create scan-report directory
         run: mkdir -p scan-report
