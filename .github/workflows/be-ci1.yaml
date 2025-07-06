@@ -1,4 +1,4 @@
-name: CI and CD for Frontend Code
+name: CI and CD for Backend Code
 on:
   push:
     paths:
@@ -87,7 +87,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend
+          context: ./backend1
           file: ./frontend/Dockerfile
           push: true
           tags: |
