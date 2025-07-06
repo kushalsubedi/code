@@ -133,7 +133,7 @@ jobs:
         with:
           image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
           format: 'template'
-          template: "@$HOME/.local/bin/trivy-bin/contrib/html.tpl"
+          template: "https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl"
           output: scan-report/scan.html
 
       - name: Push report to kushalsubedi.github.io repo
