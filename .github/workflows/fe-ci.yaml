@@ -23,7 +23,7 @@ env:
 
 jobs:
   test_and_gh_page_deployment:
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -86,7 +86,7 @@ jobs:
   create_semantic_version:
     needs: test_and_gh_page_deployment
     if: github.event_name == 'push' || github.event_name=='workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest]
     steps:
       - name: checkout code
         uses: actions/checkout@v4
@@ -108,7 +108,7 @@ jobs:
   build_and_push_docker_image:
     needs: create_semantic_version
     if: github.event_name == 'push' || github.event_name=='workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
