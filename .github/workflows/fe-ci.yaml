@@ -137,7 +137,7 @@ jobs:
         with:
           image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
           format: 'template'
-          template: "./trivy-template/html.tpl"
+          template: ".trivy-template/html.tpl"
           output: 'scan-report/scan.html'
       - name: Check output
         run: |
