@@ -38,6 +38,7 @@ jobs:
       - name: Install deps
         run : |
           yarn install --frozen-lockfile
+          yarn add vite@5.2.10
         env:
           NODE_ENV: development
 
