@@ -195,15 +195,17 @@ jobs:
           mkdir -p .trivy-template
           curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o .trivy-template/html.tpl
 
+      - name: Set up Trivy
+        uses: aquasecurity/setup-trivy@v0.2.0
+        with:
+          version: v0.64.1
 
       - name: Run Trivy vulnerability scanner on tar file (main only)
         if: github.ref == 'refs/heads/main'
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          input: frontend-app-v${{ steps.version.outputs.version }}.tar
-          format: 'template'
-          template: ".trivy-template/html.tpl"
-          output: 'scan-report/scan.html'
+        run: |
+          trivy image --format template --template @html.tpl \
+          -o scan-frontend.html \
+          --input frontend-app-v${{ steps.version.outputs.version }}.tar
 
       - name: Check output
         if: github.ref == 'refs/heads/main'
