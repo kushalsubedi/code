@@ -79,7 +79,7 @@ jobs:
         shell: bash
 
   create_semantic_version:
-    needs: test
+    needs: test-and-gh-page-deployment
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
