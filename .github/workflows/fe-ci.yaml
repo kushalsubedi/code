@@ -68,14 +68,19 @@ jobs:
           cp -r frontend/dist/. pages-repo/
         shell: bash
 
-      - name: commit to gh page
+      - name: Commit to gh page
         run: |
           cd pages-repo
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
-          git add .
-          git commit -m "Deploy frontend build  to root"
-          git push origin main
+
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git add .
+            git commit -m "Deploy frontend build"
+            git push origin main
+          fi
         shell: bash
 
   create_semantic_version:
