@@ -35,7 +35,9 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
 
-
+      - name: setup vite
+        run : |
+          yarn add vite
       - name: Build frontend dist
         working-directory: frontend
         run: yarn build
