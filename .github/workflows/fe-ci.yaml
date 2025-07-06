@@ -135,6 +135,10 @@ jobs:
           format: 'template'
           template: "https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl"
           output: scan-report/scan.html
+      - name: Check output
+        run: |
+          ls -lh scan-report/scan.html
+          cat scan-report/scan.html | head -n 20
 
       - name: Push report to kushalsubedi.github.io repo
         run: |
