@@ -206,6 +206,7 @@ jobs:
           output: 'scan-report/scan.html'
 
       - name: Check output
+        if: github.ref == 'refs/heads/main'
         run: |
           ls -lh scan-report/scan.html
           cat scan-report/scan.html | head -n 20
