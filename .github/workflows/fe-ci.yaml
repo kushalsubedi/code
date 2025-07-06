@@ -18,7 +18,7 @@ permissions:
   id-token: write
   pull-requests: write
 env:
-  PAGES_REPO: kushalsubedi/blog
+  PAGES_REPO: kushalsubedi/kushalsubedi.github.io
   PAGES_TOKEN: ${{ secrets.GH_PAT }}
 
 jobs:
@@ -63,7 +63,20 @@ jobs:
           token: ${{ env.PAGES_TOKEN }}
           path: pages-repo
           ref: main
+      - name: Transfer code to gh page
+        run: |
+          cp -r frontend/dist/. pages-repo/
+        shell: bash
 
+      - name: commit to gh page
+        run: |
+          cd pages-repo
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Deploy frontend build  to root"
+          git push origin main
+        shell: bash
 
 # Release step
   # create_semantic_version:
