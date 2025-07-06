@@ -127,13 +127,17 @@ jobs:
       - name: Create scan-report directory
         run: mkdir -p scan-report
 
+      - name: get trivy tempelete
+        run: |
+          mkdir -p .trivy-template
+          curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o .trivy-template/html.tpl
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
           format: 'template'
-          template: "https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl"
+          template: "./trivy-template/html.tpl"
           output: 'scan-report/scan.html'
       - name: Check output
         run: |
