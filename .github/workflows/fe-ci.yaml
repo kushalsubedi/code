@@ -11,10 +11,16 @@ on:
       - 'frontend/**'
     branches:
       - dev
+  workflow_dispatch:
+
 permissions:
   contents: write
   id-token: write
   pull-requests: write
+env:
+  PAGES_REPO: kushalsubedi/blog
+  PAGES_TOKEN: ${{ secrets.GH_PAT }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -31,37 +37,32 @@ jobs:
       - name: setup-node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '22.0.0'
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
 
       - name: Install deps
         run : |
+          cd frontend
           yarn install --frozen-lockfile
           yarn add vite@5.2.10
         env:
           NODE_ENV: development
 
       - name: Build frontend dist
-        working-directory: frontend
-        run: yarn build
-
-      - name: Deploy build to /fe on kushalsubedi.github.io
         run: |
-          git config --global user.email "ci-bot@github.com"
-          git config --global user.name "CI Bot"
+          cd frontend
+          yarn build
+        env:
+          VITE_CLERK_PUBLISHABLE_KEY: ${{secrets.VITE_CLERK_PUBLISHABLE_KEY}}
 
-          git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/kushalsubedi/kushalsubedi.github.io.git
-
-          mkdir -p kushalsubedi.github.io/fe
-          rm -rf kushalsubedi.github.io/fe/*
-
-          cp -r frontend/dist/* kushalsubedi.github.io/fe/
-
-          cd kushalsubedi.github.io
-          git add .
-          git commit -m "chore(deploy): update frontend build at /fe from ${{ github.sha }}"
-          git push origin main
+      - name: Checkout GitHub Pages repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.PAGES_REPO }}
+          token: ${{ env.GH_PAT }}
+          path: pages-repo
+          ref: main
 
 
 # Release step
