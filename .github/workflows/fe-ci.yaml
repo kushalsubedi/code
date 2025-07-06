@@ -188,7 +188,7 @@ jobs:
     #Trivy scan report
       - name: get trivy tempelete
         run: |
-          curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl
+          curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o html.tpl
         shell:
           bash
 
