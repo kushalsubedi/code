@@ -134,9 +134,10 @@ jobs:
           image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
           format: 'template'
           template: "https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl"
-          output: scan-report/scan.html
+          output: 'scan-report/scan.html'
       - name: Check output
         run: |
+          ls /usr/local/share/trivy/templates/
           ls -lh scan-report/scan.html
           cat scan-report/scan.html | head -n 20
 
