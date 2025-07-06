@@ -204,12 +204,6 @@ jobs:
           -o scan-frontend.html \
           --input frontend-app-v${{ steps.version.outputs.version }}.tar
 
-      - name: Check output
-        if: github.ref == 'refs/heads/main'
-        run: |
-          ls -lh scan-report/scan.html
-          cat scan-report/scan.html | head -n 20
-
       - name: Push report to kushalsubedi.github.io repo (main only)
         if: github.ref == 'refs/heads/main'
         run: |
