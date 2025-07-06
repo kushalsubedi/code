@@ -137,7 +137,6 @@ jobs:
           output: 'scan-report/scan.html'
       - name: Check output
         run: |
-          ls /usr/local/share/trivy/templates/
           ls -lh scan-report/scan.html
           cat scan-report/scan.html | head -n 20
 
