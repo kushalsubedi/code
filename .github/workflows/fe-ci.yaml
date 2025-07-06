@@ -22,7 +22,7 @@ env:
   PAGES_TOKEN: ${{ secrets.GH_PAT }}
 
 jobs:
-  test-and-gh-page-deployment:
+  test_and_gh_page_deployment:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -79,7 +79,7 @@ jobs:
         shell: bash
 
   create_semantic_version:
-    needs: test-and-gh-page-deployment
+    needs: test_and_gh_page_deployment
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
