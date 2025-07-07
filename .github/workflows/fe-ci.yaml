@@ -104,11 +104,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GH_PAT}}
         run: npx semantic-release
-# Build Docker
+
   build_and_push_docker_image:
     needs: create_semantic_version
-    if: github.event_name == 'push' || github.event_name=='workflow_dispatch'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: [ubuntu-latest]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -134,15 +135,44 @@ jobs:
       - name: List frontend files
         run: ls -R ./frontend
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
+      - name: Build Docker image (locally before push)
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }} -f ./frontend/Dockerfile ./frontend
 
-      - name: Build and push Docker image on main branch (version + latest)
+      # Trivy scan report
+      - name: Download Trivy HTML template
+        run: |
+          curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o trivy-template.tpl
+
+      - name: Set up Trivy
+        uses: aquasecurity/setup-trivy@v0.2.0
+        with:
+          version: v0.64.1
+
+      - name: Run Trivy scan and generate HTML
+        run: |
+          trivy image ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }} \
+            --format template \
+            --template "@trivy-template.tpl" \
+            -o scan-frontend.html
+
+      - name: Push Trivy report to GitHub Pages (main only)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config --global user.email "ci-bot@github.com"
+          git config --global user.name "CI Bot"
+
+          git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ env.PAGES_REPO }} gh-pages-repo
+          mkdir -p gh-pages-repo/scan/frontend
+          cp scan-frontend.html gh-pages-repo/scan/frontend/frontend-v${{ steps.version.outputs.version }}.html
+
+          cd gh-pages-repo
+          git add .
+          git commit -m "chore(report): update Trivy scan report for v${{ steps.version.outputs.version }}" || echo "No changes to commit"
+          git push origin main
+
+      # Push Docker image to DockerHub
+      - name: Push Docker image on main branch (version + latest)
         if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v5
         with:
@@ -155,7 +185,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
 
-      - name: Build and push Docker image on dev branch (version only)
+      - name: Push Docker image on dev branch (version only)
         if: github.ref == 'refs/heads/dev'
         uses: docker/build-push-action@v5
         with:
@@ -171,11 +201,11 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-      - name: Save Docker image to tar file
+      - name: Save Docker image to tar file (main only)
         if: github.ref == 'refs/heads/main'
         run: |
-          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }}
           docker save ${{ secrets.DOCKER_HUB_USERNAME }}/frontend-app:v${{ steps.version.outputs.version }} -o frontend-app-v${{ steps.version.outputs.version }}.tar
+
       - name: Upload image to GitHub Release (main only)
         if: github.ref == 'refs/heads/main'
         env:
@@ -185,33 +215,3 @@ jobs:
           FILE="frontend-app-${VERSION}.tar"
           gh release upload "$VERSION" "$FILE" --repo ${{ github.repository }} --clobber
 
-    #Trivy scan report
-      - name: Download Trivy HTML template
-        run: |
-          curl -o html.tpl https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl
-
-        shell: bash
-
-      - name: Set up Trivy
-        uses: aquasecurity/setup-trivy@v0.2.0
-        with:
-          version: v0.64.1
-
-      - name: Run Trivy vulnerability scanner on Frontend image
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'kushalsubedi/frontend-app:${{ steps.version.outputs.version }}'
-          format: 'template'
-          template: '@contrib/html.tpl'
-          output: 'scan-frontend.html'
-#
-      - name: Push report to kushalsubedi.github.io repo (main only)
-        if: github.ref == 'refs/heads/main'
-        run: |
-          git config --global user.email "ci-bot@github.com"
-          git config --global user.name "CI Bot"
-          git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/kushalsubedi/kushalsubedi.github.io.git
-          cp scan-frontend.html kushalsubedi.github.io/scan/frontend/
-          git add .
-          git commit -m "chore(report): update trivy scan report for version ${{ steps.version.outputs.version }}" || echo "No changes to commit"
-          git push origin main
