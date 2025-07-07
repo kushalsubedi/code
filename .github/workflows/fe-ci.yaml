@@ -186,11 +186,11 @@ jobs:
           gh release upload "$VERSION" "$FILE" --repo ${{ github.repository }} --clobber
 
     #Trivy scan report
-      - name: get trivy tempelete
+      - name: Download Trivy HTML template
         run: |
-          curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o html.tpl
-        shell:
-          bash
+          curl -o html.tpl https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl
+
+        shell: bash
 
       - name: Set up Trivy
         uses: aquasecurity/setup-trivy@v0.2.0
@@ -202,7 +202,7 @@ jobs:
         run: |
           trivy image --format template --template @html.tpl \
           -o scan-frontend.html \
-          --input frontend-app-v${{ steps.version.outputs.version }}.tar
+          --input docker.io/${{secrets.DOCKER_HUB_USERNAME}}/frontend-app:v${{ steps.version.outputs.version }}
 
       - name: Push report to kushalsubedi.github.io repo (main only)
         if: github.ref == 'refs/heads/main'
@@ -210,8 +210,6 @@ jobs:
           git config --global user.email "ci-bot@github.com"
           git config --global user.name "CI Bot"
           git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/kushalsubedi/kushalsubedi.github.io.git
-
-          mkdir -p kushalsubedi.github.io/scan/frontend
           cp scan-frontend.html kushalsubedi.github.io/scan/frontend/
           git add .
           git commit -m "chore(report): update trivy scan report for version ${{ steps.version.outputs.version }}" || echo "No changes to commit"
