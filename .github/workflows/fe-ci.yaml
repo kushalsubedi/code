@@ -202,7 +202,7 @@ jobs:
         run: |
           trivy image --format template --template @html.tpl \
           -o scan-frontend.html \
-          --input docker.io/${{secrets.DOCKER_HUB_USERNAME}}/frontend-app:v${{ steps.version.outputs.version }}
+          --input docker.io/${{secrets.DOCKER_HUB_USERNAME}}/frontend-app:latest
 
       - name: Push report to kushalsubedi.github.io repo (main only)
         if: github.ref == 'refs/heads/main'
