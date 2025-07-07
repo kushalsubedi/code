@@ -96,10 +96,10 @@ jobs:
       - name: setup-node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: 'yarn'
-          cache-dependency-path: frontend/yarn.lock
-
+          node-version: 22
+      - name: Install Yarn
+        run: |
+            npm -i g yarn
       - name: Semantic release
         env:
           GITHUB_TOKEN: ${{secrets.GH_PAT}}
