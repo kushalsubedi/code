@@ -203,7 +203,7 @@ jobs:
           trivy image --format template --template @html.tpl \
           -o scan-frontend.html \
           --input {{secrets.DOCKER_HUB_USERNAME}}/frontend-app:latest
-
+#
       - name: Push report to kushalsubedi.github.io repo (main only)
         if: github.ref == 'refs/heads/main'
         run: |
