@@ -200,7 +200,7 @@ jobs:
       - name: Run Trivy vulnerability scanner on Frontend image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'kushalsubedi/frontend-app:${{ steps.version.output.version }}'
+          image-ref: 'kushalsubedi/frontend-app:$v{{ steps.version.output.version }}'
           format: 'template'
           template: '@contrib/html.tpl'
           output: 'scan-frontend.html'
