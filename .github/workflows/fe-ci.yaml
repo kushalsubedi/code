@@ -164,7 +164,7 @@ jobs:
 
           git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ env.PAGES_REPO }} gh-pages-repo
           mkdir -p gh-pages-repo/scan/frontend
-          cp scan-frontend.html gh-pages-repo/scan/frontend/frontend-v${{ steps.version.outputs.version }}.html
+          cp scan-frontend.html gh-pages-repo/scan/frontend/scan-frontend.html
 
           cd gh-pages-repo
           git add .
