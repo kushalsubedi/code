@@ -210,6 +210,7 @@ jobs:
           git config --global user.email "ci-bot@github.com"
           git config --global user.name "CI Bot"
           git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/kushalsubedi/kushalsubedi.github.io.git
+
           mkdir -p kushalsubedi.github.io/scan/frontend
           cp scan-frontend.html kushalsubedi.github.io/scan/frontend/
           git add .
