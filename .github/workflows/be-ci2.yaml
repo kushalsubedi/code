@@ -109,7 +109,7 @@ jobs:
           trivy image ${{ secrets.DOCKER_HUB_USERNAME }}/backend2:v${{ steps.version.outputs.version }} \
             --format template \
             --template "@trivy-template.tpl" \
-            -o scan-backend.html
+            -o index.html
 
       - name: Push Trivy report to GitHub Pages (main only)
         if: github.ref == 'refs/heads/main'
@@ -118,8 +118,8 @@ jobs:
           git config --global user.name "CI Bot"
           mkdir gh-pages-repo
           git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ env.PAGES_REPO }} gh-pages-repo
-          mkdir -p gh-pages-repo/scan/backend
-          cp scan-backend.html gh-pages-repo/scan/backend/scan-backend.html
+          mkdir -p gh-pages-repo/scan/backend2
+          cp index.html gh-pages-repo/scan/backend2/scan-backend.html
           cd gh-pages-repo
           git add .
           git commit -m "chore(report): update Trivy scan report for backend2 v${{ steps.version.outputs.version }}" || echo "No changes to commit"
