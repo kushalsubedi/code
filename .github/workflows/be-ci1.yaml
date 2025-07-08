@@ -12,6 +12,7 @@ on:
       - 'backend1/**'
     branches:
       - dev
+  workflow_dispatch:
 
 permissions:
   contents: write
