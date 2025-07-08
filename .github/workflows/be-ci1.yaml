@@ -151,3 +151,9 @@ jobs:
           FILE="backend1-${VERSION}.tar"
           gh release upload "$VERSION" "$FILE" --repo ${{ github.repository }} --clobber
 
+  deploy_docker_to_local:
+    needs: build_and_push_docker_image
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name=='workflow_dispatch'
+    - name: ssh to local machine
+      run echo "Hello"
