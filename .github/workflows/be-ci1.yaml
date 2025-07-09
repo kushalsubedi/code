@@ -161,7 +161,7 @@ jobs:
         run: |
           echo "${{secrets.SSH_KEY}}" > sshkey
           chmod 600 sshkey
-          ssh -i sshkey ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}} << 'EOF'
+          ssh -i sshkey ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}
 
       # - name: SSH and deploy to host
       #   run: |
