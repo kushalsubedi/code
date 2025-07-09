@@ -159,7 +159,7 @@ jobs:
     steps:
       - name: Setup SSH key
         run: |
-          ssh -i ${{secrets.SSH_KEY}} ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}
+          ssh -i ${{secrets.SSH_KEY}} ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}} << 'EOF'
 
       # - name: SSH and deploy to host
       #   run: |
