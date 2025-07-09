@@ -18,7 +18,7 @@ env:
   PAGES_REPO: kushalsubedi/kushalsubedi.github.io
   PAGES_TOKEN: ${{ secrets.GH_PAT }}
   target_host_user: kushal
-  target_host_ip : 192.168.
+  target_host_ip : 10.10.10.64
 permissions:
   contents: write
   id-token: write
@@ -159,15 +159,15 @@ jobs:
     steps:
       - name: Setup SSH key
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.TARGET_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ env.TARGET_HOST_IP }} >> ~/.ssh/known_hosts
+          ssh -i ${{secrets.SSH_KEY}} ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}
 
-      - name: SSH and deploy to host
-        run: |
-          ssh -i ~/.ssh/id_rsa ${{ env.TARGET_HOST_USER }}@${{ env.TARGET_HOST_IP }} << 'EOF'
-            cd /path/to/docker/compose/project
-            docker compose pull
-            docker compose up -d
-          EOF
+      # - name: SSH and deploy to host
+      #   run: |
+      #     ssh -i ~/.ssh/id_rsa ${{ env.TARGET_HOST_USER }}@${{ env.TARGET_HOST_IP }} << 'EOF'
+      #       cd /path/to/docker/compose/project
+      #       docker compose pull
+      #       docker compose up -d
+      #     EOF
+      - name: touch
+        run : |
+          echo "hello" > hi.txt
