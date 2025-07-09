@@ -159,15 +159,14 @@ jobs:
     steps:
       - name: Setup SSH key
         run: |
-          echo "${{secrets.SSH_KEY}}" > sshkey
+          echo "${{ secrets.SSH_KEY }}" > sshkey
           chmod 600 sshkey
-          ssh -i sshkey ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}
-          touch mula.txt
 
-      # - name: SSH and deploy to host
-      #   run: |
-      #     ssh -i ~/.ssh/id_rsa ${{ env.TARGET_HOST_USER }}@${{ env.TARGET_HOST_IP }} << 'EOF'
-      #       cd /path/to/docker/compose/project
-      #       docker compose pull
-      #       docker compose up -d
-      #     EOF
+          # Add SSH host to known_hosts to avoid host key verification failure
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+          # Optional: allocate pseudo-terminal for interactive commands
+          ssh -tt -i sshkey ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            echo "Hello from remote"
+            touch mula.txt
+          EOF
