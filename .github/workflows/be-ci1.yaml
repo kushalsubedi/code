@@ -162,6 +162,7 @@ jobs:
           echo "${{secrets.SSH_KEY}}" > sshkey
           chmod 600 sshkey
           ssh -i sshkey ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}
+          touch mula.txt
 
       # - name: SSH and deploy to host
       #   run: |
@@ -170,6 +171,3 @@ jobs:
       #       docker compose pull
       #       docker compose up -d
       #     EOF
-      - name: touch
-        run : |
-          echo "hello" > hi.txt
