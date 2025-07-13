@@ -86,7 +86,7 @@ jobs:
           mkdir gh-pages-repo
           git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ env.PAGES_REPO }} gh-pages-repo
           mkdir -p gh-pages-repo/semgrep/backend
-          cp semgrep-backend.html gh-pages-repo/semgrep/backend/semgrep-backend.html
+          cp semgrep-report.html gh-pages-repo/semgrep/backend/semgrep-backend.html
           cd gh-pages-repo
           git add .
           git commit -m "chore(report): update Semgrep Serif report for backend1" || echo "No changes to commit"
