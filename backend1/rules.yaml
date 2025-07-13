@@ -1,27 +1,27 @@
 rules:
   - id: eval
-    pattern: eval($EXPR)
+    pattern: "eval($EXPR)"
     message: "Use of eval() is dangerous and should be avoided"
     languages: [typescript, javascript]
     severity: ERROR
 
   - id: hardcoded-secret
     patterns:
-      - pattern: const $VAR = "$SECRET"
-      - pattern: let $VAR = "$SECRET"
-      - pattern: var $VAR = "$SECRET"
+      - pattern: "const $VAR = \"$SECRET\""
+      - pattern: "let $VAR = \"$SECRET\""
+      - pattern: "var $VAR = \"$SECRET\""
     message: "Hardcoded secrets detected - use environment variables instead"
     languages: [typescript, javascript]
     severity: WARNING
 
   - id: dangerously-set-innerhtml
-    pattern: dangerouslySetInnerHTML={{ __html: $HTML }}
+    pattern: "dangerouslySetInnerHTML={{ __html: $HTML }}"
     message: "dangerouslySetInnerHTML can lead to XSS vulnerabilities"
     languages: [typescript, javascript]
     severity: WARNING
 
   - id: require-import
-    pattern: require($MODULE)
+    pattern: "require($MODULE)"
     message: "Use ES6 imports instead of require()"
     languages: [typescript, javascript]
     severity: INFO
@@ -45,32 +45,32 @@ rules:
 
   - id: open-cors
     patterns:
-      - pattern: app.use(cors())
-      - pattern: app.use(cors({}))
+      - pattern: "app.use(cors())"
+      - pattern: "app.use(cors({}))"
     message: "Open CORS policy allows any origin - specify allowed origins"
     languages: [typescript, javascript]
     severity: WARNING
 
   - id: http-server
-    pattern: http.createServer(...)
+    pattern: "http.createServer(...)"
     message: "Use HTTPS instead of HTTP for production servers"
     languages: [typescript, javascript]
     severity: WARNING
 
   - id: expose-stacktrace
     patterns:
-      - pattern: res.send(err.stack)
-      - pattern: res.json(err.stack)
-      - pattern: response.send(err.stack)
+      - pattern: "res.send(err.stack)"
+      - pattern: "res.json(err.stack)"
+      - pattern: "response.send(err.stack)"
     message: "Exposing stack traces can leak sensitive information"
     languages: [typescript, javascript]
     severity: WARNING
 
   - id: sql-string-concat
     patterns:
-      - pattern: connection.query("SELECT * FROM users WHERE id = " + $ID)
-      - pattern: connection.query(`SELECT * FROM users WHERE id = ${$ID}`)
-      - pattern: db.query("... WHERE ... = " + $VAR)
+      - pattern: "connection.query(\"SELECT * FROM users WHERE id = \" + $ID)"
+      - pattern: "connection.query(`SELECT * FROM users WHERE id = ${$ID}`)"
+      - pattern: "db.query(\"... WHERE ... = \" + $VAR)"
     message: "SQL injection vulnerability - use parameterized queries"
     languages: [typescript, javascript]
     severity: ERROR
@@ -83,3 +83,4 @@ rules:
     message: "Missing key prop in React list rendering"
     languages: [typescript, javascript]
     severity: WARNING
+
