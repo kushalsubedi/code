@@ -56,14 +56,22 @@ jobs:
       - name: Install Semgrep
         run: pip install semgrep
 
-      - name: Run Semgrep scan
+      - name: Run Semgrep scan and save JSON output
         run: |
           semgrep scan \
             --config=auto \
-            --output=semgrep.html \
+            --output=semgrep.json \
+            --format=json \
+            backend1/
+
+
+      - name: Generate Serif HTML report
+        run: |
+          semgrep ci-report \
             --format=html \
             --template=serif \
-            backend1/
+            --json-input=semgrep.json \
+            --output=semgrep-backend.html
 
       - name: Push Semgrep report to GitHub Pages
         run: |
@@ -72,7 +80,7 @@ jobs:
           mkdir gh-pages-repo
           git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ env.PAGES_REPO }} gh-pages-repo
           mkdir -p gh-pages-repo/semgrep/backend
-          cp semgrep.html gh-pages-repo/semgrep/backend/semgrep-backend.html
+          cp semgrep-backend.html gh-pages-repo/semgrep/backend/semgrep-backend.html
           cd gh-pages-repo
           git add .
           git commit -m "chore(report): update Semgrep Serif report for backend1" || echo "No changes to commit"
