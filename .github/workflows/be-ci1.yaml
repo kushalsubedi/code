@@ -47,24 +47,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-
       - name: Install Semgrep
         run: pip install semgrep
-
       - name: Run Semgrep scan and save JSON output
         run: |
           semgrep scan \
             --config=auto \
+            --json \
             --output=semgrep.json \
-            --format=json \
             backend1/
-
-
       - name: Generate Serif HTML report
         run: |
           semgrep ci-report \
@@ -72,7 +67,6 @@ jobs:
             --template=serif \
             --json-input=semgrep.json \
             --output=semgrep-backend.html
-
       - name: Push Semgrep report to GitHub Pages
         run: |
           git config --global user.email "ci-bot@github.com"
