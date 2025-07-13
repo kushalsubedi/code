@@ -63,6 +63,7 @@ jobs:
 
       - name: Run Semgrep scan
         run: |
+          cd backend1
           semgrep --json --config rules.yaml . > semgrep-results.json || true
 
       - name: Convert JSON to HTML
