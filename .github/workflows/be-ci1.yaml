@@ -90,8 +90,8 @@ jobs:
 
       - name: Copy Semgrep report to GitHub Pages repo
         run: |
-          mkdir -p gh-pages-repo/semgrep/backend
-          cp semgrep-report.html gh-pages-repo/semgrep/backend/semgrep-backend.html
+          mkdir -p gh-pages-repo/semgrep/backend1
+          cp backend1/semgrep-report.html gh-pages-repo/semgrep/backend/semgrep-backend.html
 
       - name: Commit and push Semgrep report
         run: |
